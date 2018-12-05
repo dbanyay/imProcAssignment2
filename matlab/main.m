@@ -17,8 +17,6 @@ im = im - 128;
 %im = 127 * ones(8);    %gives max(dctResultCoeff) = 1016
 % im = -128 * ones(8);    %gives min(dctResultCoeff) = -1024
 
-
-
 %define the block size 
 
 bSize = 8;
@@ -38,15 +36,30 @@ minDCT = bSize*(-128);
 
 %Quantization by a uniform mid-tread quantizer
 
-stepQ = 2;                                                                  %Step size for uniform midtread quantization
-qDCT = stepQ * floor ((im_8x8_DCT/stepQ) + (1/2));
+stepQ = 1;                                                                  %Step size for uniform midtread quantization
+
 % x_in = minDCT:1:maxDCT;
 x_in = -10:0.1:10;
 x_out = stepQ * floor ((x_in/stepQ) + (1/2));
 
 figure()
 plot(x_in,x_out)
+stepC = 1;
 
+for stepQ = 1:20
+    stepC
+    stepQV(stepC) = stepQ;
+    qDCT = stepQ * floor ((im_8x8_DCT/stepQ) + (1/2));
+    error = (qDCT - im_8x8_DCT).^2;
+    mse(stepC) = (sum(sum(sum(error))))/numel(error);
+    stepC = stepC + 1;
+end
+
+figure()
+plot(stepQV,mse)
+xlabel('Distortion')
+ylabel('Mean Squared Error')
+title('Relation between distortion and MSE')
 
 %% FWT based image compression
 
