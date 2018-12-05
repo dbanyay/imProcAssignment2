@@ -18,4 +18,4 @@ im = imread('baboon512.bmp');
 
 test = [1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1];
 
-[appr, det] = lift1D(test,haar);
+[lb,hb] = liftAnal(test,haar);
