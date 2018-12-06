@@ -11,6 +11,9 @@ im = imread('images\peppers512x512.tif');
 im = double(im);    
 im = im - 128;
 
+% Xdata = [1 2 3 4 5 6 7 8];
+% H = Entropy(Xdata')
+
 
 %% DCT based image compression
 
@@ -35,6 +38,7 @@ maxDCT = bSize*127;
 minDCT = bSize*(-128);
 
 %Quantization by a uniform mid-tread quantizer
+%Followed by Block Entropy Encoder
 
 stepQ = 1;                                                                  %Step size for uniform midtread quantization
 
@@ -46,20 +50,33 @@ figure()
 plot(x_in,x_out)
 stepC = 1;
 
-for stepQ = 1:20
-    stepC
+for pow = 1:9
+    stepQ = 2^pow;
     stepQV(stepC) = stepQ;
     qDCT = stepQ * floor ((im_8x8_DCT/stepQ) + (1/2));
+    entrop = zeros(bSize);
+    for ro = 1:bSize
+        for co = 1:bSize
+            entrop(ro,co)= ceil(entropy(qDCT(ro,co,:)));            
+        end
+    end
+    bitsPerBlock(stepC) = sum(sum(entrop));
     error = (qDCT - im_8x8_DCT).^2;
     mse(stepC) = (sum(sum(sum(error))))/numel(error);
     stepC = stepC + 1;
 end
 
 figure()
-plot(stepQV,mse)
+plot(stepQV,log(mse))
 xlabel('Distortion')
 ylabel('Mean Squared Error')
 title('Relation between distortion and MSE')
+
+figure()
+plot(stepQV,bitsPerBlock)
+xlabel('Distortion')
+ylabel('Bit Rate')
+title('Relation between distortion and Bit Rate')
 
 %% FWT based image compression
 
