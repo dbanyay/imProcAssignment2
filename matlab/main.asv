@@ -56,11 +56,12 @@ for pow = 1:9
     qDCT = stepQ * floor ((im_8x8_DCT/stepQ) + (1/2));
     entrop = zeros(bSize);
     for ro = 1:bSize
-        for co = 1:bsize
-            entrop(ro,co)= entropy(qDCT(ro,co,:));            
+        for co = 1:bSize
+            qDCT(ro,co,:);
+            entrop(ro,co)= ceil(entropy(qDCT(ro,co,:)));            
         end
     end
-    
+    bitsPerBlock(stepC) = sum(sum(entrop));
     error = (qDCT - im_8x8_DCT).^2;
     mse(stepC) = (sum(sum(sum(error))))/numel(error);
     stepC = stepC + 1;
@@ -71,6 +72,12 @@ plot(stepQV,log(mse))
 xlabel('Distortion')
 ylabel('Mean Squared Error')
 title('Relation between distortion and MSE')
+
+figure()
+plot(stepQV,bitsPerBlock)
+xlabel('Distortion')
+ylabel('Bit Rate')
+title('Relation between distortion and Bit Rate')
 
 %% FWT based image compression
 

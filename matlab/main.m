@@ -1,3 +1,4 @@
+clc
 clear all
 close all
 
@@ -55,14 +56,21 @@ for pow = 1:9
     stepQV(stepC) = stepQ;
     qDCT = stepQ * floor ((im_8x8_DCT/stepQ) + (1/2));
     entrop = zeros(bSize);
+    
+    %Calculates entropy of the block
+    
     for ro = 1:bSize
         for co = 1:bSize
-            entrop(ro,co)= ceil(entropy(qDCT(ro,co,:)));            
+            roCo = qDCT(ro,co,:);
+            entrop(ro,co)= (Entropy(qDCT(ro,co,:)));            
         end
     end
-    bitsPerBlock(stepC) = sum(sum(entrop));
+    
+    bitsPerBlock(stepC) = sum(sum(entrop))/(bSize*bSize);                   %After division by bSize*bSize it becomes bits per pixel
+    
     error = (qDCT - im_8x8_DCT).^2;
-    mse(stepC) = (sum(sum(sum(error))))/numel(error);
+    mse(stepC) = (sum(sum(sum(error))))/numel(error);                       %Distortion measure
+    PSNR(stepC) = 10 * log((155^2)/mse(stepC));
     stepC = stepC + 1;
 end
 
@@ -73,9 +81,9 @@ ylabel('Mean Squared Error')
 title('Relation between distortion and MSE')
 
 figure()
-plot(stepQV,bitsPerBlock)
-xlabel('Distortion')
-ylabel('Bit Rate')
+plot(bitsPerBlock,PSNR)
+xlabel('bits per Block')
+ylabel('PSNR')
 title('Relation between distortion and Bit Rate')
 
 %% FWT based image compression
