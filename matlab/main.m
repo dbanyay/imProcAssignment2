@@ -177,3 +177,4 @@ disp(sprintf('Mean Square Error between quantized and non quantized image: = %d'
 % calculate entropy
 
 wavelet_entropy = wavelet_ent(im_fwt,scale)
+
