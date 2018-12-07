@@ -128,6 +128,15 @@ title('Relation between Quantization Step Size and Bit Rate')
 
 %% FWT based image compression
 
-test = [1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1];
+im_orig = im2+128;
+im_fwt = waveletlegall53(im_orig,1);
 
-[lb,hb] = liftAnal(test,haar);
+figure
+subplot(121)
+im_fwt_plot = im_fwt;
+im_fwt_plot(1:256,1:256) = im_fwt_plot(1:256,1:256)-128;
+imshow(uint8(im_fwt_plot+128))
+
+im_res = waveletlegall53(im_fwt,-1);
+subplot(122)
+imshow(uint8(im_res))
