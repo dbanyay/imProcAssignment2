@@ -86,14 +86,14 @@ for pow = 1:10
     
     if pow == 1
         figure()
-        suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^0')
+%        suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^0')
         subplot(1,2,1)
         imshow(uint8(im1+128))
         subplot(1,2,2)
         imshow(uint8(imrec1+128))
     elseif pow == 10
         figure()
-        suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^9')
+%  suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^9')
         subplot(1,2,1)
         imshow(uint8(im1+128))
         subplot(1,2,2)
@@ -176,35 +176,114 @@ title('Relation between Quantization Step Size and Number of Bits required for s
 
 %% FWT based image compression
 
-im_orig = im2+128;
+im2 = im2 + 128; % harbour
+im3 = im3 + 128; % boat
+im1 = im1 + 128; % pepper
 
 scale = 4;
 
 % performing FWT
 
 
-im_fwt = waveletlegall53(im_orig,scale);
+im1_fwt = waveletlegall53(im1,scale);
+im2_fwt = waveletlegall53(im2,scale);
+im3_fwt = waveletlegall53(im3,scale);
 
-figure
 
-im_fwt_plot = im_fwt; %grey non DC coeff
+% figure
+% 
+% im_fwt_plot = im_fwt; %grey non DC coeff
+% 
+% dc_size = size(im2,1) / 2^scale;
+% 
+% im_fwt_plot(1:dc_size,1:dc_size) = im_fwt_plot(1:dc_size,1:dc_size)-128; 
 
-dc_size = size(im_orig,1) / 2^scale;
-
-im_fwt_plot(1:dc_size,1:dc_size) = im_fwt_plot(1:dc_size,1:dc_size)-128; 
-
-imshow(uint8(im_fwt_plot+128))
+%imshow(uint8(im_fwt_plot+128))
 
 
 % Quantization
 
 
-
 for pow = 1:10
     stepQ = 2^(pow-1);
     stepQV(stepC) = stepQ;
-    im_fwt_q = stepQ * floor ((im_fwt/stepQ) + (1/2));
-end
+    im1_ftw_q = stepQ * floor ((im1_fwt/stepQ) + (1/2));
+    im2_ftw_q = stepQ * floor ((im2_fwt/stepQ) + (1/2));
+    im3_ftw_q = stepQ * floor ((im3_fwt/stepQ) + (1/2));
+%     qFWT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4) = stepQ * floor ((im_8x8_DCT4/stepQ) + (1/2));
+%     qFWT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+numOfBlocks5) = stepQ * floor ((im_8x8_DCT5/stepQ) + (1/2));
+%     
+
+    im1_res = waveletlegall53(im1_ftw_q,-scale);
+    im2_res = waveletlegall53(im2_ftw_q,-scale);
+    im3_res = waveletlegall53(im3_ftw_q,-scale);
+
+%     imrec4 = deblock(qFWT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4),im_size) ;
+%     imrec5 = deblock(qFWT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+numOfBlocks5),im_size) ;
+%     
+    if pow == 1
+        figure()
+%       suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^0')
+        subplot(1,2,1)
+        imshow(uint8(im1))
+        subplot(1,2,2)
+        imshow(uint8(im1_res))
+    elseif pow == 10
+        figure()
+%  suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^9')
+        subplot(1,2,1)
+        imshow(uint8(im2))
+        subplot(1,2,2)
+        imshow(uint8(im2_res))
+    end
+
+    error = immse(im1, im1_res);
+    error = error + immse(im2, im1_res);
+    error = error + immse(im3, im1_res);
+%     error = error + (im1_res - im4).^2;
+%     error = error + (im1_res - im5).^2;
+
+    mse(stepC) = error                   %Distortion measure  
+
+    mseqFWT(stepC) = error/numel(error)                       %Distortion measure
+
+
+end    
+figure()
+plot(mse,mseqFWT)
+xlabel('MSE between the original and the recovered images')
+ylabel('MSEbetween the original and the Quantized DCT Coefficients')
+title('Relation between distortion, d, and mse of quantized dct coefficients')
+
+
+figure()
+plot(PSNR,bitsPerBlock,'*-')
+xlabel('PSNR [dB]')
+ylabel('bit Rate [bits/(8x8 block)]')
+title('Relation between PSNR and Bit Rate')
+    
+    
+
+    
+    %Calculates entropy
+    
+    entrop1 = wavelet_ent(im1_fwt,scale);
+    entrop2 = wavelet_ent(im2_fwt,scale);
+    entrop3 = wavelet_ent(im3_fwt,scale);
+    
+    bitsImCoded(stepC) = bitsPerBlock(stepC)*numOfBlocks1;
+    sizeRaw(stepC) = sizeOfRawTxIm1;
+    
+    
+    
+    
+    %Distortion measure
+    PSNR(stepC) = 10 * log((155^2)/mse(stepC));
+    stepC = stepC + 1;
+
+
+
+
   
 % Restoration
 
@@ -218,7 +297,7 @@ subplot(122)
 imshow(uint8(im_res_q))
 
 % calculate MSE
-err = immse(im_res, im_res_q)/numel(im_res);
+
 
 disp(sprintf('Mean Square Error between quantized and non quantized image: = %d', err));
 
