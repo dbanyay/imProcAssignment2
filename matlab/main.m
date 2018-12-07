@@ -169,6 +169,11 @@ im_res_q = waveletlegall53(im_fwt_q,-scale);
 subplot(122)
 imshow(uint8(im_res_q))
 
-err = immse(im_res, im_res_q);
+% calculate MSE
+err = immse(im_res, im_res_q)/numel(im_res);
 
 disp(sprintf('Mean Square Error between quantized and non quantized image: = %d', err));
+
+% calculate entropy
+
+wavelet_entropy = wavelet_ent(im_fwt,scale)
