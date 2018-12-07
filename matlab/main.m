@@ -4,17 +4,25 @@ close all
 
 load coeffs.mat
 
-im = imread('images\peppers512x512.tif');
+im1 = imread('images\peppers512x512.tif');
+im2 = imread('images\harbour512x512.tif');
+im3 = imread('images\boats512x512.tif');
+im4 = imread('images\airfield512x512.tif');
+im5 = imread('images\bridge512x512.tif');
 
 %Change the image into double format which is necessary for the next step,
 %i.e. centering all the values around zero
 
-im = double(im);    
-im = im - 128;
-
-% Xdata = [1 2 3 4 5 6 7 8];
-% H = Entropy(Xdata')
-
+im1 = double(im1);    
+im1 = im1 - 128;
+im2 = double(im2);    
+im2 = im2 - 128;
+im3 = double(im3);    
+im3 = im3 - 128;
+im4 = double(im4);    
+im4 = im4 - 128;
+im5 = double(im5);    
+im5 = im5 - 128;
 
 %% DCT based image compression
 
@@ -26,35 +34,47 @@ im = im - 128;
 bSize = 8;
 
 %Crating bSize x bSize DCT Coefficients Matrix A
-dctCoeff = dct2coeff(bSize);
+dctCoeff = dct2coeff(bSize)
 
 %Making 8x8 blocks of image and taking DCT of each block
-[numOfBlocks, im_8x8_DCT, newIm_size] = blocks_8x8(im,dctCoeff,bSize);
+[numOfBlocks1, im_8x8_DCT1, newIm_size1] = blocks_8x8(im1,dctCoeff,bSize);
+[numOfBlocks2, im_8x8_DCT2, newIm_size2] = blocks_8x8(im2,dctCoeff,bSize);
+[numOfBlocks3, im_8x8_DCT3, newIm_size3] = blocks_8x8(im3,dctCoeff,bSize);
+[numOfBlocks4, im_8x8_DCT4, newIm_size4] = blocks_8x8(im4,dctCoeff,bSize);
+[numOfBlocks5, im_8x8_DCT5, newIm_size5] = blocks_8x8(im5,dctCoeff,bSize);
 
-sizeOfRawTxIm = newIm_size(1)*newIm_size(2);
-txt = sprintf('Number of Bytes required to transmit raw image = %d bytes', sizeOfRawTxIm);
+sizeOfRawTxIm1 = newIm_size1(1)*newIm_size1(2)*8;
+txt = sprintf('Number of Bytes required to transmit raw image = %d bits', sizeOfRawTxIm1);
 disp(txt)
 
-maxDCT = bSize*127;
-minDCT = bSize*(-128);
+% maxDCT = bSize*127;
+% minDCT = bSize*(-128);
 
 %Quantization by a uniform mid-tread quantizer
 %Followed by Block Entropy Encoder
 
-stepQ = 1;                                                                  %Step size for uniform midtread quantization
+stepQ = (2^2);                                                                  %Step size for uniform midtread quantization
 
 % x_in = minDCT:1:maxDCT;
-x_in = -10:0.1:10;
+x_in = -10:0.001:10;
 x_out = stepQ * floor ((x_in/stepQ) + (1/2));
 
 figure()
 plot(x_in,x_out)
+title('Quantizer function with Quantization Step Size = 4')
+xlabel('Input to the quantizer')
+ylabel('Output of the quantizer')
 stepC = 1;
 
-for pow = 1:9
-    stepQ = 2^pow;
+for pow = 1:10
+    stepQ = 2^(pow-1);
     stepQV(stepC) = stepQ;
-    qDCT = stepQ * floor ((im_8x8_DCT/stepQ) + (1/2));
+    qDCT(:,:,1:numOfBlocks1) = stepQ * floor ((im_8x8_DCT1/stepQ) + (1/2));
+    qDCT(:,:,numOfBlocks1+1:numOfBlocks1+numOfBlocks2) = stepQ * floor ((im_8x8_DCT2/stepQ) + (1/2));
+    qDCT(:,:,numOfBlocks1+numOfBlocks2+1:numOfBlocks1+numOfBlocks2+numOfBlocks3) = stepQ * floor ((im_8x8_DCT3/stepQ) + (1/2));
+    qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4) = stepQ * floor ((im_8x8_DCT4/stepQ) + (1/2));
+    qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+numOfBlocks5) = stepQ * floor ((im_8x8_DCT5/stepQ) + (1/2));
+
     entrop = zeros(bSize);
     
     %Calculates entropy of the block
@@ -68,23 +88,43 @@ for pow = 1:9
     
     bitsPerBlock(stepC) = sum(sum(entrop))/(bSize*bSize);                   %After division by bSize*bSize it becomes bits per pixel
     
-    error = (qDCT - im_8x8_DCT).^2;
+    bitsImCoded(stepC) = bitsPerBlock(stepC)*512*512;
+    sizeRaw(stepC) = sizeOfRawTxIm1;
+
+    
+    error = (qDCT(:,:,1:numOfBlocks1) - im_8x8_DCT1).^2;
     mse(stepC) = (sum(sum(sum(error))))/numel(error);                       %Distortion measure
     PSNR(stepC) = 10 * log((155^2)/mse(stepC));
     stepC = stepC + 1;
 end
 
 figure()
-plot(stepQV,log(mse))
+plot(log2(stepQV),log(mse))
 xlabel('Distortion')
 ylabel('Mean Squared Error')
 title('Relation between distortion and MSE')
 
 figure()
 plot(bitsPerBlock,PSNR)
-xlabel('bits per Block')
+xlabel('bit Rate')
 ylabel('PSNR')
-title('Relation between distortion and Bit Rate')
+title('Relation between PSNR and Bit Rate')
+
+figure()
+plot(log2(stepQV),bitsPerBlock)
+xlabel('step Size')
+ylabel('bits per pixel')
+title('Relation between Quantization Step Size and Bit Rate')
+
+% figure()
+% plot(log2(stepQV),bitsImCoded)
+% xlabel('step Size')
+% ylabel('bits')
+% title('Relation between Quantization Step Size and Number of Bits required for storing 512x512 Image')
+% hold on;
+% plot(log2(stepQV),sizeRaw)
+% hold off;
+
 
 %% FWT based image compression
 
