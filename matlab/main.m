@@ -143,8 +143,6 @@ for pow = 1:10
     bitsImCoded(stepC) = bitsPerBlock(stepC)*numOfBlocks1;
     sizeRaw(stepC) = sizeOfRawTxIm1;
     PSNR(stepC) = 10 * log((155^2)/mse(stepC));
-    %     error = (qDCT(:,:,1:numOfBlocks1) - im_8x8_DCT1).^2;
-    %     mse(stepC) = (sum(sum(sum(error))))/numel(error);                       %Distortion measure
     stepC = stepC + 1;
 
 end
