@@ -84,21 +84,31 @@ for pow = 1:10
     imrec4 = deblock(qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4),im_size) ;
     imrec5 = deblock(qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+numOfBlocks5),im_size) ;
     
-    if pow == 1
-        figure()
-        suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^0')
-        subplot(1,2,1)
-        imshow(uint8(im1+128))
-        subplot(1,2,2)
-        imshow(uint8(imrec1+128))
-    elseif pow == 10
-        figure()
-        suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^9')
-        subplot(1,2,1)
-        imshow(uint8(im1+128))
-        subplot(1,2,2)
-        imshow(uint8(imrec1+128))
-    end
+%     figure()
+%     subplot(1,2,1)
+%     imshow(uint8(im1(1:32*2,1:32*2)+128))
+%     subplot(1,2,2)
+%     imshow(uint8(imrec1(1:32*2,1:32*2)+128))
+    
+    
+    
+    
+    
+%     if pow == 1
+%         figure()
+%         suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^0')
+%         subplot(1,2,1)
+%         imshow(uint8(im1+128))
+%         subplot(1,2,2)
+%         imshow(uint8(imrec1+128))
+%     elseif pow == 10
+%         figure()
+%         suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^9')
+%         subplot(1,2,1)
+%         imshow(uint8(im1+128))
+%         subplot(1,2,2)
+%         imshow(uint8(imrec1+128))
+%     end
 
     entrop = zeros(bSize);
     
