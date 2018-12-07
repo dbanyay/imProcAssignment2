@@ -129,14 +129,43 @@ title('Relation between Quantization Step Size and Bit Rate')
 %% FWT based image compression
 
 im_orig = im2+128;
-im_fwt = waveletlegall53(im_orig,1);
+
+scale = 4;
+
+% performing FWT
+
+
+im_fwt = waveletlegall53(im_orig,scale);
 
 figure
-subplot(121)
-im_fwt_plot = im_fwt;
-im_fwt_plot(1:256,1:256) = im_fwt_plot(1:256,1:256)-128;
+
+im_fwt_plot = im_fwt; %grey non DC coeff
+
+dc_size = size(im_orig,1) / 2^scale;
+
+im_fwt_plot(1:dc_size,1:dc_size) = im_fwt_plot(1:dc_size,1:dc_size)-128; 
+
 imshow(uint8(im_fwt_plot+128))
 
-im_res = waveletlegall53(im_fwt,-1);
-subplot(122)
+
+% Quantization
+
+
+
+for pow = 1:10
+    stepQ = 2^(pow-1);
+    stepQV(stepC) = stepQ;
+    im_fwt_q = stepQ * floor ((im_fwt/stepQ) + (1/2));
+end
+  
+% Restoration
+
+figure
+im_res = waveletlegall53(im_fwt,-scale);
+subplot(121)
 imshow(uint8(im_res))
+
+im_res_q = waveletlegall53(im_fwt_q,-scale);
+subplot(122)
+imshow(uint8(im_res_q))
+

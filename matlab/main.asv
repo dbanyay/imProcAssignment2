@@ -116,8 +116,51 @@ xlabel('step Size')
 ylabel('bits per pixel')
 title('Relation between Quantization Step Size and Bit Rate')
 
+% figure()
+% plot(log2(stepQV),bitsImCoded)
+% xlabel('step Size')
+% ylabel('bits')
+% title('Relation between Quantization Step Size and Number of Bits required for storing 512x512 Image')
+% hold on;
+% plot(log2(stepQV),sizeRaw)
+% hold off;
+
+
 %% FWT based image compression
 
-test = [1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1 2 1];
+im_orig = im2+128;
 
-[lb,hb] = liftAnal(test,haar);
+scale = 4;
+
+% performing FWT
+
+
+im_fwt = waveletlegall53(im_orig,scale);
+
+figure
+
+im_fwt_plot = im_fwt; %grey non DC coeff
+
+dc_size = size(im_orig,1) / 2^scale;
+
+im_fwt_plot(1:dc_size,1:dc_size) = im_fwt_plot(1:dc_size,1:dc_size)-128; 
+
+subplot(121)
+imshow(uint8(im_fwt_plot+128))
+
+
+% Quantization
+
+for pow = 1:10
+    stepQ = 2^(pow-1);
+    stepQV(stepC) = stepQ;
+    im_fwt_q = stepQ * floor ((im_fwt/stepQ) + (1/2));
+end
+  
+
+
+% Restoration
+
+im_res = waveletlegall53(im_fwt,-scale);
+subplot(122)
+imshow(uint8(im_res))
