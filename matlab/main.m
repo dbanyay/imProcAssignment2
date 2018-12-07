@@ -169,3 +169,6 @@ im_res_q = waveletlegall53(im_fwt_q,-scale);
 subplot(122)
 imshow(uint8(im_res_q))
 
+err = immse(im_res, im_res_q);
+
+disp(sprintf('Mean Square Error between quantized and non quantized image: = %d', err));
