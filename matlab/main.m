@@ -59,11 +59,13 @@ stepQ = (2^2);                                                                  
 x_in = -10:0.001:10;
 x_out = stepQ * floor ((x_in/stepQ) + (1/2));
 
-figure()
-plot(x_in,x_out)
-title('Quantizer function with Quantization Step Size = 4')
-xlabel('Input to the quantizer')
-ylabel('Output of the quantizer')
+% figure()
+% plot(x_in,x_out)
+% title('Quantizer function with Quantization Step Size = 4')
+% xlabel('Input to the quantizer')
+% ylabel('Output of the quantizer')
+
+
 stepC = 1;
 
 for pow = 1:10
@@ -74,8 +76,48 @@ for pow = 1:10
     qDCT(:,:,numOfBlocks1+numOfBlocks2+1:numOfBlocks1+numOfBlocks2+numOfBlocks3) = stepQ * floor ((im_8x8_DCT3/stepQ) + (1/2));
     qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4) = stepQ * floor ((im_8x8_DCT4/stepQ) + (1/2));
     qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+numOfBlocks5) = stepQ * floor ((im_8x8_DCT5/stepQ) + (1/2));
+    
+    im_size = [512 512];
+    imrec1 = deblock(qDCT(:,:,1:numOfBlocks1),im_size);
+    imrec2 = deblock(qDCT(:,:,numOfBlocks1+1:numOfBlocks1+numOfBlocks2),im_size) ;
+    imrec3 = deblock(qDCT(:,:,numOfBlocks1+numOfBlocks2+1:numOfBlocks1+numOfBlocks2+numOfBlocks3),im_size) ;
+    imrec4 = deblock(qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4),im_size) ;
+    imrec5 = deblock(qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+numOfBlocks5),im_size) ;
+    
+    if pow == 1
+        figure()
+        suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^0')
+        subplot(1,2,1)
+        imshow(uint8(im1+128))
+        subplot(1,2,2)
+        imshow(uint8(imrec1+128))
+    elseif pow == 10
+        figure()
+        suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^9')
+        subplot(1,2,1)
+        imshow(uint8(im1+128))
+        subplot(1,2,2)
+        imshow(uint8(imrec1+128))
+    end
 
     entrop = zeros(bSize);
+    
+    error = (imrec1 - im1).^2;
+    error = error + (imrec2 - im2).^2;
+    error = error + (imrec3 - im3).^2;
+    error = error + (imrec4 - im4).^2;
+    error = error + (imrec5 - im5).^2;
+
+    mse(stepC) = ((sum(sum(error))))/numel(error);                       %Distortion measure
+    
+    errorDCT = (qDCT(:,:,1:numOfBlocks1) - im_8x8_DCT1).^2;
+    errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+1:numOfBlocks1+numOfBlocks2) - im_8x8_DCT2).^2;
+    errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+numOfBlocks2+1:numOfBlocks1+numOfBlocks2+numOfBlocks3) - im_8x8_DCT3).^2;
+    errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4) - im_8x8_DCT4).^2;
+    errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+numOfBlocks5) - im_8x8_DCT5).^2;
+    mseQDCT(stepC) = (sum(sum(sum(error))))/numel(error);                       %Distortion measure
+    
+
     
     %Calculates entropy of the block
     
@@ -88,41 +130,47 @@ for pow = 1:10
     
     bitsPerBlock(stepC) = sum(sum(entrop))/(bSize*bSize);                   %After division by bSize*bSize it becomes bits per pixel
     
-    bitsImCoded(stepC) = bitsPerBlock(stepC)*512*512;
+    bitsImCoded(stepC) = bitsPerBlock(stepC)*numOfBlocks1;
     sizeRaw(stepC) = sizeOfRawTxIm1;
 
     
-    error = (qDCT(:,:,1:numOfBlocks1) - im_8x8_DCT1).^2;
-    mse(stepC) = (sum(sum(sum(error))))/numel(error);                       %Distortion measure
+%     error = (qDCT(:,:,1:numOfBlocks1) - im_8x8_DCT1).^2;
+%     mse(stepC) = (sum(sum(sum(error))))/numel(error);                       %Distortion measure
     PSNR(stepC) = 10 * log((155^2)/mse(stepC));
     stepC = stepC + 1;
 end
 
 figure()
-plot(log2(stepQV),log(mse))
-xlabel('Distortion')
-ylabel('Mean Squared Error')
-title('Relation between distortion and MSE')
-
-figure()
-plot(bitsPerBlock,PSNR)
-xlabel('bit Rate')
-ylabel('PSNR')
-title('Relation between PSNR and Bit Rate')
-
-figure()
-plot(log2(stepQV),bitsPerBlock)
-xlabel('step Size')
-ylabel('bits per pixel')
-title('Relation between Quantization Step Size and Bit Rate')
+plot(mse,mseQDCT)
+xlabel('MSE between the original and the recovered images')
+ylabel('MSEbetween the original and the Quantized DCT Coefficients')
+title('Relation between distortion, d, and mse of quantized dct coefficients')
 
 % figure()
-% plot(log2(stepQV),bitsImCoded)
+% plot(log2(stepQV),log(mse))
+% xlabel('Distortion')
+% ylabel('Mean Squared Error')
+% title('Relation between distortion and MSE')
+
+figure()
+plot(PSNR,bitsPerBlock,'*-')
+xlabel('PSNR [dB]')
+ylabel('bit Rate [bits/(8x8 block)]')
+title('Relation between PSNR and Bit Rate')
+
+% figure()
+% plot(log2(stepQV),bitsPerBlock)
 % xlabel('step Size')
-% ylabel('bits')
-% title('Relation between Quantization Step Size and Number of Bits required for storing 512x512 Image')
+% ylabel('bits per pixel')
+% title('Relation between Quantization Step Size and Bit Rate')
+
+figure()
+plot(PSNR,bitsImCoded/(8*1024),'*-')
+xlabel('PSNR [dB]')
+ylabel('size [kB]')
+title('Relation between Quantization Step Size and Number of Bits required for storing 512x512 Image')
 % hold on;
-% plot(log2(stepQV),sizeRaw)
+% plot(PSNR,sizeRaw/(8))
 % hold off;
 
 
