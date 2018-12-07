@@ -108,14 +108,14 @@ for pow = 1:10
     error = error + (imrec4 - im4).^2;
     error = error + (imrec5 - im5).^2;
 
-    mse(stepC) = ((sum(sum(error))))/numel(error);                       %Distortion measure
+    mse(stepC) = ((sum(sum(error))))/(5*numel(error));                       %Distortion measure
     
     errorDCT = (qDCT(:,:,1:numOfBlocks1) - im_8x8_DCT1).^2;
     errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+1:numOfBlocks1+numOfBlocks2) - im_8x8_DCT2).^2;
     errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+numOfBlocks2+1:numOfBlocks1+numOfBlocks2+numOfBlocks3) - im_8x8_DCT3).^2;
     errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4) - im_8x8_DCT4).^2;
     errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+numOfBlocks5) - im_8x8_DCT5).^2;
-    mseQDCT(stepC) = (sum(sum(sum(error))))/numel(error);                       %Distortion measure
+    mseQDCT(stepC) = (sum(sum(sum(error))))/(5*numel(error));                       %Distortion measure
     
 
     
@@ -128,7 +128,7 @@ for pow = 1:10
         end
     end
     
-    bitsPerBlock(stepC) = sum(sum(entrop))/(bSize*bSize);                   %After division by bSize*bSize it becomes bits per pixel
+    bitsPerBlock(stepC) = sum(sum(entrop)); %/(bSize*bSize);                   %After division by bSize*bSize it becomes bits per pixel
     
     bitsImCoded(stepC) = bitsPerBlock(stepC)*numOfBlocks1;
     sizeRaw(stepC) = sizeOfRawTxIm1;
@@ -169,9 +169,9 @@ plot(PSNR,bitsImCoded/(8*1024),'*-')
 xlabel('PSNR [dB]')
 ylabel('size [kB]')
 title('Relation between Quantization Step Size and Number of Bits required for storing 512x512 Image')
-% hold on;
-% plot(PSNR,sizeRaw/(8))
-% hold off;
+hold on;
+plot(PSNR,sizeRaw/(8*1024))
+hold off;
 
 
 %% FWT based image compression
