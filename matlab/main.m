@@ -100,6 +100,32 @@ for pow = 1:10
         imshow(uint8(imrec1+128))
     end
 
+%     figure()
+%     subplot(1,2,1)
+%     imshow(uint8(im1(1:32*2,1:32*2)+128))
+%     subplot(1,2,2)
+%     imshow(uint8(imrec1(1:32*2,1:32*2)+128))
+    
+    
+    
+    
+    
+%     if pow == 1
+%         figure()
+%         suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^0')
+%         subplot(1,2,1)
+%         imshow(uint8(im1+128))
+%         subplot(1,2,2)
+%         imshow(uint8(imrec1+128))
+%     elseif pow == 10
+%         figure()
+%         suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^9')
+%         subplot(1,2,1)
+%         imshow(uint8(im1+128))
+%         subplot(1,2,2)
+%         imshow(uint8(imrec1+128))
+%     end
+
     entrop = zeros(bSize);
     
     error = (imrec1 - im1).^2;
@@ -108,14 +134,14 @@ for pow = 1:10
     error = error + (imrec4 - im4).^2;
     error = error + (imrec5 - im5).^2;
 
-    mse(stepC) = ((sum(sum(error))))/numel(error);                       %Distortion measure
+    mse(stepC) = ((sum(sum(error))))/(5*numel(error));                       %Distortion measure
     
     errorDCT = (qDCT(:,:,1:numOfBlocks1) - im_8x8_DCT1).^2;
     errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+1:numOfBlocks1+numOfBlocks2) - im_8x8_DCT2).^2;
     errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+numOfBlocks2+1:numOfBlocks1+numOfBlocks2+numOfBlocks3) - im_8x8_DCT3).^2;
     errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4) - im_8x8_DCT4).^2;
     errorDCT = errorDCT + (qDCT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+numOfBlocks5) - im_8x8_DCT5).^2;
-    mseQDCT(stepC) = (sum(sum(sum(error))))/numel(error);                       %Distortion measure
+    mseQDCT(stepC) = (sum(sum(sum(error))))/(5*numel(error));                       %Distortion measure
     
 
     
@@ -128,7 +154,7 @@ for pow = 1:10
         end
     end
     
-    bitsPerBlock(stepC) = sum(sum(entrop))/(bSize*bSize);                   %After division by bSize*bSize it becomes bits per pixel
+    bitsPerBlock(stepC) = sum(sum(entrop)); %/(bSize*bSize);                   %After division by bSize*bSize it becomes bits per pixel
     
     bitsImCoded(stepC) = bitsPerBlock(stepC)*numOfBlocks1;
     sizeRaw(stepC) = sizeOfRawTxIm1;
@@ -169,9 +195,9 @@ plot(PSNR,bitsImCoded/(8*1024),'*-')
 xlabel('PSNR [dB]')
 ylabel('size [kB]')
 title('Relation between Quantization Step Size and Number of Bits required for storing 512x512 Image')
-% hold on;
-% plot(PSNR,sizeRaw/(8))
-% hold off;
+hold on;
+plot(PSNR,sizeRaw/(8*1024))
+hold off;
 
 
 %% FWT based image compression
@@ -203,24 +229,19 @@ im3_fwt = waveletlegall53(im3,scale);
 
 % Quantization
 
+stepC = 1;
 
 for pow = 1:10
     stepQ = 2^(pow-1);
     stepQV(stepC) = stepQ;
-    im1_ftw_q = stepQ * floor ((im1_fwt/stepQ) + (1/2));
-    im2_ftw_q = stepQ * floor ((im2_fwt/stepQ) + (1/2));
-    im3_ftw_q = stepQ * floor ((im3_fwt/stepQ) + (1/2));
-%     qFWT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4) = stepQ * floor ((im_8x8_DCT4/stepQ) + (1/2));
-%     qFWT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+numOfBlocks5) = stepQ * floor ((im_8x8_DCT5/stepQ) + (1/2));
-%     
+    im1_fwt_q = stepQ * floor ((im1_fwt/stepQ) + (1/2));
+    im2_fwt_q = stepQ * floor ((im2_fwt/stepQ) + (1/2));
+    im3_fwt_q = stepQ * floor ((im3_fwt/stepQ) + (1/2));
 
-    im1_res = waveletlegall53(im1_ftw_q,-scale);
-    im2_res = waveletlegall53(im2_ftw_q,-scale);
-    im3_res = waveletlegall53(im3_ftw_q,-scale);
-
-%     imrec4 = deblock(qFWT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4),im_size) ;
-%     imrec5 = deblock(qFWT(:,:,numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+1:numOfBlocks1+numOfBlocks2+numOfBlocks3+numOfBlocks4+numOfBlocks5),im_size) ;
-%     
+    im1_res = waveletlegall53(im1_fwt_q,-scale);
+    im2_res = waveletlegall53(im2_fwt_q,-scale);
+    im3_res = waveletlegall53(im3_fwt_q,-scale);
+  
     if pow == 1
         figure()
 %       suptitle('Comparison of Original Image with Recovered Image at Quantization step size = 2^0')
@@ -240,46 +261,46 @@ for pow = 1:10
     error = immse(im1, im1_res);
     error = error + immse(im2, im1_res);
     error = error + immse(im3, im1_res);
-%     error = error + (im1_res - im4).^2;
-%     error = error + (im1_res - im5).^2;
+    
+    errorfwt = immse(im1_fwt, im1_fwt_q);
+    errorfwt = errorfwt + immse(im2_fwt, im2_fwt_q);
+    errorfwt = errorfwt + immse(im3_fwt, im3_fwt_q);
 
-    mse(stepC) = error                   %Distortion measure  
+    msefwt(stepC) = error;                   %Distortion measure  
 
-    mseqFWT(stepC) = error/numel(error)                       %Distortion measure
-
+    mseqFWT(stepC) = errorfwt;          %Distortion measure
+    
+        
+    %Calculates entropy
+    
+%     entrop1 = wavelet_ent(im1_fwt,scale);
+%     entrop2 = wavelet_ent(im2_fwt,scale);
+%     entrop3 = wavelet_ent(im3_fwt,scale);
+%     
+%     entropavg = (entrop1+entrop2+entrop3)/3;
+%     
+%     bitsPerBlock(stepC) = entropavg;
+    
+    %Distortion measure
+    PSNRfwt(stepC) = 10 * log((155^2)/mse(stepC));
+    stepC = stepC + 1;
 
 end    
 figure()
-plot(mse,mseqFWT)
+plot(msefwt,mseqFWT)
 xlabel('MSE between the original and the recovered images')
-ylabel('MSEbetween the original and the Quantized DCT Coefficients')
-title('Relation between distortion, d, and mse of quantized dct coefficients')
+ylabel('MSE between the original and the Quantized FWT Coefficients')
+title('Relation between distortion, d, and mse of quantized FWT coefficients')
 
 
 figure()
-plot(PSNR,bitsPerBlock,'*-')
+plot(PSNRfwt,bitsPerBlock,'*-')
 xlabel('PSNR [dB]')
 ylabel('bit Rate [bits/(8x8 block)]')
 title('Relation between PSNR and Bit Rate')
     
     
 
-    
-    %Calculates entropy
-    
-    entrop1 = wavelet_ent(im1_fwt,scale);
-    entrop2 = wavelet_ent(im2_fwt,scale);
-    entrop3 = wavelet_ent(im3_fwt,scale);
-    
-    bitsImCoded(stepC) = bitsPerBlock(stepC)*numOfBlocks1;
-    sizeRaw(stepC) = sizeOfRawTxIm1;
-    
-    
-    
-    
-    %Distortion measure
-    PSNR(stepC) = 10 * log((155^2)/mse(stepC));
-    stepC = stepC + 1;
 
 
 
