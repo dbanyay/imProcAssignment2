@@ -17,9 +17,9 @@ end
 
 % filtering
 
-y0 = conv(h0,X);
+y0 = conv(X,h0,'same');
 
-y1 = conv(h1,X);
+y1 = conv(X,h1,'same');
 
 % downsampling
 

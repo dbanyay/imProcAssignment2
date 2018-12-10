@@ -205,11 +205,11 @@ im2 = im2 + 128; % harbour
 im3 = im3 + 128; % boat
 im1 = im1 + 128; % pepper
 
-
-X = [7 5 -4 6 3 8];
 h0 = db8;
 scale = 2;
 % performing FWT
+
+subbands = fwt(im2,2,h0);
 
 [y0,y1] = analisys(X, h0);
 
