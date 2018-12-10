@@ -3,6 +3,7 @@ clear all
 close all
 
 load coeffs.mat
+load db8.mat
 
 im1 = imread('images\peppers512x512.tif');
 im2 = imread('images\harbour512x512.tif');
@@ -206,10 +207,15 @@ im1 = im1 + 128; % pepper
 
 
 X = [7 5 -4 6 3 8];
-h0 = db4;
+h0 = db8;
+scale = 2;
 % performing FWT
 
 [y0,y1] = analisys(X, h0);
 
 Y = synthesis(y0,y1,h0);
+
+
+
+
 
