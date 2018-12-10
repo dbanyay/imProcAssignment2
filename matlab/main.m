@@ -204,10 +204,9 @@ im2 = im2 + 128; % harbour
 im3 = im3 + 128; % boat
 im1 = im1 + 128; % pepper
 
-scale = 4;
 
 X = [7 5 -4 6 3 8];
-h0 = [1 1];
+h0 = db4;
 % performing FWT
 
 [y0,y1] = analisys(X, h0);

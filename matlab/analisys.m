@@ -1,6 +1,19 @@
 function [y0,y1] = analisys(X,h0)
 %1D 2-band analisys filter bank
-h1 = [-1 1];
+
+% deriving the highpass filter
+
+minusflag = 1;
+for i = 1:length(h0)
+    if(minusflag)
+        h1(i) = - (h0(length(h0)-i+1));
+        minusflag = 0;
+    else
+        h1(i) = (h0(length(h0)-i+1));
+        minusflag = 1;
+    end
+end
+
 
 % filtering
 
