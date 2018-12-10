@@ -205,15 +205,18 @@ im2 = im2 + 128; % harbour
 im3 = im3 + 128; % boat
 im1 = im1 + 128; % pepper
 
-h0 = db8;
+h0 = db4;
 scale = 2;
 % performing FWT
+test = [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20];
 
-subbands = fwt(im2,2,h0);
+%subbands = fwt(test,4,h0);
 
-[y0,y1] = analisys(X, h0);
+[y00,y01,y10,y11] = fwt(im2,scale,h0);
 
-Y = synthesis(y0,y1,h0);
+
+im_rest =ifwt(y00,y01,y10,y11,scale,h0);
+
 
 
 

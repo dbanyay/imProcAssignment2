@@ -1,5 +1,7 @@
-function [y0,y1] = analisys(X,h0)
+function [y0,y1] = analisys(im,h0)
 %1D 2-band analisys filter bank
+
+hlen = length(h0)-1;
 
 % deriving the highpass filter
 
@@ -15,11 +17,20 @@ for i = 1:length(h0)
 end
 
 
+% extend 1D signal
+im_ext = wextend('1D','sym',im,hlen-1);
+
+
 % filtering
 
-y0 = conv(X,h0,'same');
+y0 = conv(im_ext,h0,'same');
 
-y1 = conv(X,h1,'same');
+y1 = conv(im_ext,h1,'same');
+
+% truncating
+
+y0 = y0(hlen-1:end-hlen);
+y1 = y1(hlen-1:end-hlen);
 
 % downsampling
 
