@@ -17,20 +17,18 @@ for i = 1:length(h0)
 end
 
 
-% extend 1D signal
-im_ext = wextend('1D','sym',im,hlen-1);
 
 
 % filtering
 
-y0 = conv(im_ext,h0,'same');
+y0 = conv(im,h0,'same');
 
-y1 = conv(im_ext,h1,'same');
+y1 = conv(im,h1,'same');
 
 % truncating
 
-y0 = y0(hlen-1:end-hlen);
-y1 = y1(hlen-1:end-hlen);
+% y0 = y0(hlen-1:end-hlen);
+% y1 = y1(hlen-1:end-hlen);
 
 % downsampling
 

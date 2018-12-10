@@ -206,19 +206,108 @@ im3 = im3 + 128; % boat
 im1 = im1 + 128; % pepper
 
 h0 = db4;
-scale = 2;
+scale = 4;
 % performing FWT
-test = [1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20];
 
-%subbands = fwt(test,4,h0);
+% 
+% [im1_fwt,bands1] = fwt(im1,scale,h0);
+% [im2_fwt,bands2] = fwt(im2,scale,h0);
+% [im3_fwt,bands3] = fwt(im3,scale,h0);
+% 
+% 
+% im1_rest =ifwt(bands1,scale,h0);
+% im2_rest =ifwt(bands2,scale,h0);
+% im3_rest =ifwt(bands3,scale,h0);
 
-[y00,y01,y10,y11] = fwt(im2,scale,h0);
+im1_fwt = waveletlegall53(im1,scale);
+im2_fwt = waveletlegall53(im2,scale);
+im3_fwt = waveletlegall53(im3,scale);
+im4_fwt = waveletlegall53(im4,scale);
+im5_fwt = waveletlegall53(im5,scale);
 
 
-im_rest =ifwt(y00,y01,y10,y11,scale,h0);
+% calculate error
 
+stepC = 1;
 
+for pow = 1:10
 
+    stepQ = 2^(pow-1);
 
+    im1_fwt_q = stepQ * floor ((im1_fwt/stepQ) + (1/2));
+    im2_fwt_q = stepQ * floor ((im2_fwt/stepQ) + (1/2));
+    im3_fwt_q = stepQ * floor ((im3_fwt/stepQ) + (1/2));
+    im4_fwt_q = stepQ * floor ((im4_fwt/stepQ) + (1/2));
+    im5_fwt_q = stepQ * floor ((im5_fwt/stepQ) + (1/2));
+% 
+%     im1_res = ifwt(bands1,scale,h0);
+%     im2_res = ifwt(bands2,scale,h0);
+%     im3_res = ifwt(bands3,scale,h0);
 
+    im1_res = waveletlegall53(im1_fwt_q,-scale);
+    im2_res = waveletlegall53(im2_fwt_q,-scale);
+    im3_res = waveletlegall53(im3_fwt_q,-scale);
+    im4_res = waveletlegall53(im4_fwt_q,-scale);
+    im5_res = waveletlegall53(im5_fwt_q,-scale);
+    
+    if pow == 1
+        figure()
+        subplot(1,2,1)
+        imshow(uint8(im1))
+        subplot(1,2,2)
+        imshow(uint8(im1_res))
+    elseif pow == 10
+        figure()
+        subplot(1,2,1)
+        imshow(uint8(im2))
+        subplot(1,2,2)
+        imshow(uint8(im2_res))
+    end
 
+    error = immse(im1, im1_res);
+    error = error + immse(im2, im2_res);
+    error = error + immse(im3, im3_res);
+    error = error + immse(im4, im4_res);
+    error = error + immse(im5, im5_res);
+    
+    errorfwt = immse(im1_fwt, im1_fwt_q);
+    errorfwt = errorfwt + immse(im2_fwt, im2_fwt_q);
+    errorfwt = errorfwt + immse(im3_fwt, im3_fwt_q);
+    errorfwt = errorfwt + immse(im4_fwt, im4_fwt_q);
+    errorfwt = errorfwt + immse(im5_fwt, im5_fwt_q);
+    
+    w_ent = wavelet_ent(im1_fwt_q, scale);
+    w_ent = w_ent + wavelet_ent(im2_fwt_q, scale);
+    w_ent = w_ent + wavelet_ent(im3_fwt_q, scale);
+    w_ent = w_ent + wavelet_ent(im4_fwt_q, scale);
+    w_ent = w_ent + wavelet_ent(im5_fwt_q, scale);
+    
+    w_ent = w_ent/5;
+    
+    wavelet_entropy(stepC) = w_ent;   
+    
+
+    msefwt(stepC) = error;                   %Distortion measure  
+
+    mseqFWT(stepC) = errorfwt;          %Distortion measure   
+
+    
+    %Distortion measure
+    PSNRfwt(stepC) = 10 * log((155^2)/msefwt(stepC));
+   
+    
+    stepC = stepC + 1;
+
+end    
+
+figure()
+plot(msefwt,mseqFWT)
+xlabel('MSE between the original and the recovered images')
+ylabel('MSE between the original and the Quantized FWT Coefficients')
+title('Relation between distortion, d, and mse of quantized FWT coefficients')
+
+figure()
+plot(PSNRfwt,wavelet_entropy,'*-')
+xlabel('PSNR [dB]')
+ylabel('Average bit rate, weighted by subband size')
+title('Relation between PSNR and Bit Rate')

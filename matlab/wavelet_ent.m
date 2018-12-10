@@ -19,7 +19,7 @@ for i = 1:scale
         
         segment = X((x-1)*sizevect(i)+1:x*sizevect(i),(y-1)*sizevect(i)+1:y*sizevect(i));
         segment = reshape(segment,1,1,[]);
-        sb_ent(x+(y-1)*2) = Entropy(segment);
+        sb_ent(x+(y-1)*2) = entropy(segment);
         
         end        
     end
@@ -28,9 +28,8 @@ for i = 1:scale
         entsum = entsum + sum(sb_ent)*(4*sizevect(i));        
     else        
         entsum = entsum + sum(sb_ent(2:4))*(3*sizevect(i));
-      
-    
-    
         
+    end
 end
+
 end

@@ -27,27 +27,22 @@ end
 
 % upsampling
 
-y0_up = zeros(1,2*length(y0)-1);
+y0_up = zeros(1,2*length(y0));
 y0_up(1:2:end) = y0;
  
 
-y1_up = zeros(1,2*length(y1)-1);
+y1_up = zeros(1,2*length(y1));
 y1_up(1:2:end) = y1;
 
 % inverse filtering
 
-y0_up = (conv(g0,y0_up));
+y0_up = conv(y0_up,g0,'same');
 
-y1_up = (conv(g1,y1_up));
+y1_up = conv(y1_up,g1,'same');
 
 % adding up
 
 Y = y0_up+y1_up;
-
-% truncate
-
-Y = Y(length(h0):end-length(h0)+1);
-
 
 end
 
