@@ -27,6 +27,8 @@ for i = 1:length(g1)
     end
 end
 
+
+
 % upsampling
 
 y0_up = zeros(1,2*length(y0));

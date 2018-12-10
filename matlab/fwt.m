@@ -5,7 +5,7 @@ hlen = length(h0);
 row = size(im,1);
 col = size(im,2);
 
-subbands = zeros(scale*3+1,row*col/4, scale);
+subbands = zeros(4,row*col/4, scale);
 
 
 for i=1:scale
@@ -80,6 +80,11 @@ for i=1:scale
 
     end
 end
+    im_tf(1:row/2,1:col/2) = im_tf(1:row/2,1:col/2)-128;
+
+    im_tf = im_tf+128;
+    
     imshow(uint8(im_tf));
+ 
 end
 
