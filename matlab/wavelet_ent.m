@@ -8,9 +8,7 @@ for i = 1:scale
     sizevect(i) = smallest*2^(i-1);
 end
 
-
 for i = 1:scale
-    
     sb_ent = zeros(1,4);
     segment = zeros(1,4);
     
@@ -24,11 +22,12 @@ for i = 1:scale
         end        
     end
     
-    if i == 1
-        entsum = entsum + sum(sb_ent)*(4*sizevect(i));        
+    if i == 1        
+        entsum = entsum + sum(sb_ent)*(4*(sizevect(i).^2));
+%         sizeIm = sizeIm + 4*(sizevect(i).^2);
     else        
-        entsum = entsum + sum(sb_ent(2:4))*(3*sizevect(i));
-        
+        entsum = entsum + sum(sb_ent(2:4))*(3*(sizevect(i).^2));
+%         sizeIm = sizeIm + 3*(sizevect(i).^2);
     end
 end
 
