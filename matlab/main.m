@@ -205,11 +205,6 @@ scale = 4;
 
 % performing FWT
 
-
-
-
-
-
 im1_fwt = waveletlegall53(im1,scale);
 im2_fwt = waveletlegall53(im2,scale);
 im3_fwt = waveletlegall53(im3,scale);
