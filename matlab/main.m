@@ -207,17 +207,18 @@ im1 = im1 + 128; % pepper
 
 h0 = db4;
 scale = 4;
+
+
+
 % performing FWT
 
-% 
-% [im1_fwt,bands1] = fwt(im1,scale,h0);
-% [im2_fwt,bands2] = fwt(im2,scale,h0);
-% [im3_fwt,bands3] = fwt(im3,scale,h0);
-% 
-% 
+
+% [im1_fwt,bands1] = fwt(im3,scale,h0);
 % im1_rest =ifwt(bands1,scale,h0);
-% im2_rest =ifwt(bands2,scale,h0);
-% im3_rest =ifwt(bands3,scale,h0);
+% 
+% 
+
+
 
 im1_fwt = waveletlegall53(im1,scale);
 im2_fwt = waveletlegall53(im2,scale);
