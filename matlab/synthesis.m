@@ -1,6 +1,9 @@
 function Y = synthesis(y0,y1,h0)
 %1D 2-band synthesis filter bank
 
+
+hlen = length(h0);
+
 % deriving filters from analysis filter
 
 minusflag = 0;
@@ -43,6 +46,9 @@ y1_up = conv(y1_up,g1,'same');
 % adding up
 
 Y = y0_up+y1_up;
+
+% truncate
+Y = Y(hlen-1:end-hlen);
 
 end
 

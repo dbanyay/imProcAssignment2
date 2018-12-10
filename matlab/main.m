@@ -213,10 +213,8 @@ scale = 4;
 % performing FWT
 
 
-% [im1_fwt,bands1] = fwt(im3,scale,h0);
-% im1_rest =ifwt(bands1,scale,h0);
-% 
-% 
+[im1_fwt,bands1] = fwt(im3,scale,h0);
+im1_rest =ifwt(bands1,scale,h0);
 
 
 
