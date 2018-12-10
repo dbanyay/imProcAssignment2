@@ -170,7 +170,7 @@ end
 % ylabel('bits per pixel')
 % title('Relation between Quantization Step Size and Bit Rate')
 
-figure(4)
+figure(10)
 plot(quant,bitsImCoded/(8*1024),'k*-')
 xlabel('Quantization step size, exponent of 2')
 ylabel('size [kB]')
@@ -294,23 +294,21 @@ for pow = 1:10
 
 end    
 
-% figure()
-% % hold on;
-% plot(msefwt,mseqFWT)
-% xlabel('MSE between the original and the recovered images')
-% ylabel('MSE between the original and the Quantized FWT Coefficients')
-% title('Relation between distortion, d, and mse of quantized FWT coefficients')
-% % hold off;
+figure()
+% hold on;
+plot(msefwt,mseqFWT)
+xlabel('MSE between the original and the recovered images')
+ylabel('MSE between the original and the Quantized FWT Coefficients')
+title('Relation between distortion, d, and mse of quantized FWT coefficients')
+% hold off;
 
-% figure()
-% % hold on;
-% plot(PSNRfwt,wavelet_entropy/(8*1024),'*-')
-% xlabel('PSNR [dB]')
-% ylabel('Average bit rate, weighted by subband size')
-% title('Relation between PSNR and Bit Rate')
-% % hold off;
+figure()
+plot(PSNRfwt,wavelet_entropy/(8*1024),'*-')
+xlabel('PSNR [dB]')
+ylabel('Average bit rate, weighted by subband size')
+title('Relation between PSNR and Bit Rate')
 
-figure(4)
+figure(10)
 hold on;
 plot(quant,wavelet_entropy/(8*1024),'g*-')
 xlabel('Quantization step size, exponent of 2')
@@ -318,6 +316,3 @@ ylabel('size [kB]')
 title('Relation between Quantization Step Size and Number of Bits required for storing 512x512 Image')
 hold off;
 legend('DCT Based Image Compression','FWT Based Image Compression');
-% % hold on;
-% % plot(quant,sizeRaw/(8*1024))
-% % hold off;
